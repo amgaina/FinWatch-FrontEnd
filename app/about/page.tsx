@@ -6,24 +6,24 @@ import { Footer } from "@/components/footer"
 export default function AboutPage() {
   const developers = [
     {
-      name: "Alex Chen",
-      title: "Lead AI Engineer",
-      image: "/ai-engineer-headshot.png",
+      name: "Abhishek Amgain",
+      title: "Developer",
+      image: "/abhishek.png",
     },
     {
-      name: "Sarah Johnson",
-      title: "Financial Data Scientist",
-      image: "/data-scientist-headshot.png",
+      name: "Dinesh Chhantyal",
+      title: "Developer",
+      image: "/dinesh.png",
     },
     {
-      name: "Michael Rodriguez",
-      title: "Full Stack Developer",
-      image: "/software-developer-headshot.png",
+      name: "Pushkar Kandel",
+      title: "Researcher",
+      image: "/pushkar.png",
     },
     {
-      name: "Emily Zhang",
-      title: "UX/UI Designer",
-      image: "/ui-designer-headshot.png",
+      name: "Naresh Chhetri",
+      title: "Developer",
+      image: "/naresh.png",
     },
   ]
 
