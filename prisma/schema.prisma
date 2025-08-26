@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// 1. Define the database connection
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 2. Define the Prisma Client generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 3. Define your data models
+
+// User Model: Core user information
+model User {
+  id          String  @id @default(cuid())
+  email       String  @unique
+  name        String
+  profileId   String  @unique
+  phoneNumber String?
+  sastraUID   String  @unique // Used for linking to the SastraUser model
+  password    String // Hashed password
+
+  // --- Relations ---
+  profile      Profile?      @relation(fields: [profileId], references: [id])
+  sastraUser   SastraUser?   @relation(fields: [sastraUID], references: [sastraUserId])
+  subscription Subscription?
+  payments     Payment[]
+
+  // Self-relation for sub-users/parent accounts
+  subUserId String?
+  parent    User?   @relation("SubUsers", fields: [subUserId], references: [email])
+  subUsers  User[]  @relation("SubUsers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Profile Model: User-specific settings and preferences
+model Profile {
+  id          String @id @default(cuid()) // Primary Key
+  preferences Json? // Storing complex preferences as a JSON object
+  mode        Mode   @default(REGULAR) // User experience mode, defaults to REGULAR
+  userId      String @unique // Foreign Key to User
+  user        User?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Payment Model: Records all payment transactions
+model Payment {
+  id    String   @id @default(cuid()) // Primary Key: Unique payment identifier
+  price Decimal // Use Decimal for financial accuracy
+  date  DateTime @default(now())
+
+  // --- Relations ---
+  userId         String // Foreign Key to User
+  user           User          @relation(fields: [userId], references: [email])
+  subscriptionId String? // Foreign Key to Subscription
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+}
+
+// Subscription Model: Manages user subscription status
+model Subscription {
+  id    String           @id @default(cuid()) // Primary Key
+  type  SubscriptionType @default(REGULAR) // Type of subscription
+  renew RenewalType      @default(NONE) // Renewal frequency
+
+  // --- Relations ---
+  userId   String    @unique // Foreign Key to User
+  user     User      @relation(fields: [userId], references: [email])
+  payments Payment[]
+
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+}
+
+// News Model: Stores news articles and related data
+model News {
+  id            String   @id @default(cuid()) // Primary Key
+  tickerSymbols String[] // An array of relevant stock tickers
+  publishedDate DateTime
+  url           String   @unique // The unique URL of the news source
+  analystName   String?
+  newsContent   Json // Storing the main news object as JSON
+
+  createdAt DateTime @default(now())
+}
+
+// SastraUser Model: For the Sastra-specific user data like points
+model SastraUser {
+  id           String @id @default(cuid()) // Primary Key
+  sastraUserId String @unique // A unique identifier for the Sastra system
+  points       Int    @default(0)
+
+  // --- Relations ---
+  userId String @unique // Foreign Key to User
+  user   User?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- ENUMS ---
+// Enums provide a set of predefined options for a field
+
+enum Mode {
+  REGULAR
+  BLIND
+  ADHD
+}
+
+enum SubscriptionType {
+  REGULAR
+  PREMIUM
+}
+
+enum RenewalType {
+  NONE
+  MONTHLY
+  ANNUALLY
+}
