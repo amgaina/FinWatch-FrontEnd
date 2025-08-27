@@ -18,6 +18,7 @@ generator client {
 model User {
   id          String  @id @default(cuid())
   email       String  @unique
+  username    String  @unique
   name        String
   profileId   String  @unique
   phoneNumber String?
@@ -38,6 +39,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
 
 // Profile Model: User-specific settings and preferences
 model Profile {
